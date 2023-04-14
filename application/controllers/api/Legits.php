@@ -244,7 +244,7 @@ class Legits extends RestController {
             $this->response([
                 'status' => false,
                 'message' => 'Case Code Not Found!'
-            ],404);
+            ]);
         }
     }
 

@@ -19,7 +19,7 @@ class Smtp{
 		// $_this->email->initialize($config);
 		// $_this->email->from('gedesugandi@gmail.com', 'Tude Kebaya');
 		// $_this->email->to($kepada);
-
+		
 		$_this =& get_instance();
 		$config = [
 			'protocol' => 'smtp',
@@ -31,6 +31,16 @@ class Smtp{
 			'charset' => 'utf-8',
 			'newline' => "\r\n"
 		];
+		// $config = [
+		// 	'protocol' => 'smtp',
+		// 	'smtp_host' => 'mail.thriftex.id',
+		// 	'smtp_user' => 'info@thriftex.id',
+		// 	'smtp_pass' => 'Thriftex2023#',
+		// 	'smtp_port' => 465,
+		// 	'mailtype' => 'html',
+		// 	'charset' => 'utf-8',
+		// 	'newline' => "\r\n"
+		// ];
 		$_this->load->library('email', $config);
 		$_this->email->initialize($config);
 		$_this->email->from('info@thriftex.id', 'thriftex.id');

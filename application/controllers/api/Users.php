@@ -173,5 +173,34 @@ class Users extends RestController {
         }
     }
 
+    public function userlist_get(){
+        $this->authorization_token->authtoken();
+        $headers = $this->input->request_headers();
+        $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+        if($decodedToken['status'] == true && $decodedToken['data']->role == 'admin'){
+            $param = $this->get('datatable');
+            $query = $param['sSearch'];
+            $start = $param['iDisplayStart'];
+            $length = $param['iDisplayLength'];
+            $keySearch = 'nama';
+
+            $role = $this->get('role');
+            $result['sEcho'] = intval($param['sEcho']);
+            $result['iTotalRecords'] = $this->user->count('role = "'.$role.'"');
+            $result['iTotalDisplayRecords'] = $this->user->count_filter($query,$role);
+            if ($length == -1) $length = $result['iTotalDisplayRecords'];
+            $data = $this->user->list($start, $length, $query, $keySearch,$role);
+            foreach ($data as $key) {
+                $key->data_nama = '<label for="" class="font-16">'.$key->nama.'</label><p class="font-400 font-12 p-0 m-0">'.$key->email.'</p>';
+            }
+            $result['aaData'] = $data;
+            $this->response($result);
+        }else{
+            $this->response([
+                'status'    => false,
+            ]);
+        }
+    }
+
 
 }
