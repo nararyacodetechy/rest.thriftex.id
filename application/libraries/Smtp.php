@@ -21,17 +21,27 @@ class Smtp{
 		// $_this->email->to($kepada);
 		
 		$_this =& get_instance();
+		// $config = [
+		// 	'protocol' => 'smtp',
+		// 	'smtp_host' => 'ssl://smtp.googlemail.com',
+		// 	'smtp_user' => 'kebayatude@gmail.com',
+		// 	'smtp_pass' => 'mwqntoowdztazxpi',
+		// 	'smtp_port' => 465,
+		// 	'mailtype' => 'html',
+		// 	'charset' => 'utf-8',
+		// 	'newline' => "\r\n"
+		// ];
 		$config = [
 			'protocol' => 'smtp',
 			'smtp_host' => 'ssl://smtp.googlemail.com',
-			'smtp_user' => 'kebayatude@gmail.com',
-			'smtp_pass' => 'mwqntoowdztazxpi',
+			'smtp_user' => 'thriftexofficial@gmail.com',
+			'smtp_pass' => 'vtpxagsoquywuizj',
 			'smtp_port' => 465,
 			'mailtype' => 'html',
 			'charset' => 'utf-8',
 			'newline' => "\r\n"
 		];
-		// $config = [
+		// $config = [ 
 		// 	'protocol' => 'smtp',
 		// 	'smtp_host' => 'mail.thriftex.id',
 		// 	'smtp_user' => 'info@thriftex.id',
