@@ -23,7 +23,7 @@ class SConfig
 	// var $_database_user = 'root';
 	// var $_database_password = '';
 
-	var $_app_version = '1';
+	var $_app_version = '2';
 }
 
 ?>

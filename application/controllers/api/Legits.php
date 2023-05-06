@@ -26,8 +26,9 @@ class Legits extends RestController {
         $no_prodile = $data_user->user_code ;
         $jumlah_produk_check = $this->legit->count(array('user_id' => $user_id));
         $inisial_profile = (new Initials)->generate($data_user->nama);;
-        $nomor_jenis_barnag = $brand_id;
-        $code = $no_prodile .'-'.$jumlah_produk_check.$inisial_profile.$nomor_jenis_barnag.'X';
+        // $nomor_jenis_barnag = $brand_id;
+        // $code = $no_prodile .'-'.$jumlah_produk_check.$inisial_profile.$nomor_jenis_barnag.'X';
+        $code = $no_prodile .'-'.$jumlah_produk_check.$inisial_profile.'X';
         return $code;
     }
     public function savelegit_post()
@@ -77,7 +78,8 @@ class Legits extends RestController {
             $data_legit_detail = array(
                 'legit_id'      => $legit_id,
                 'kategori_id'   => $kategori_id,
-                'brand_id'      => $brand_id,
+                // 'brand_id'      => $brand_id,
+                'nama_brand'    => $brand_id,
                 'nama_item'     => $nama_item,
                 'catatan'       => $catatan,
                 'created_at'    => date('Y-m-d H:i:s')
@@ -138,13 +140,14 @@ class Legits extends RestController {
         $dataLegit = $this->legit->getLegitListUser($user_id);
         if($dataLegit){
             foreach ($dataLegit as $key) {
-                if($key->check_result == 'preview'){
-                    $key->check_result = 'Checking';
-                }elseif($key->check_result == 'real'){
+                // if($key->check_result == 'preview'){
+                //     $key->check_result = 'Checking';
+                // }else
+                if($key->check_result == 'real'){
                     $key->check_result = 'Original';
                 }
                 if($key->check_result == null){
-                    $key->check_result = 'Process';
+                    $key->check_result = 'Waiting';
                 }
             }
             $this->response([
@@ -169,13 +172,14 @@ class Legits extends RestController {
         $dataLegit = $this->legit->getLegitListUserDetail($user_id,$case_code);
         if($dataLegit){
             foreach ($dataLegit as $key) {
-                if($key->check_result == 'preview'){
-                    $key->check_result = 'Checking';
-                }elseif($key->check_result == 'real'){
+                // if($key->check_result == 'preview'){
+                //     $key->check_result = 'Checking';
+                // }else
+                if($key->check_result == 'real'){
                     $key->check_result = 'Original';
                 }
                 if($key->check_result == null){
-                    $key->check_result = 'Process';
+                    $key->check_result = 'Waiting';
                 }
                 $key->image_list = $this->image->get_by(array('legit_id'=>$key->id),'','','',array('file_path'));
                 $key->authentic_comment = $this->validator->validator_data_checker($key->id);
@@ -197,15 +201,17 @@ class Legits extends RestController {
         $headers = $this->input->request_headers();
         $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
         $tipe = $this->get('tipe');
-        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_brand_id,$tipe);
+        // var_dump($decodedToken['data']->validator_kategori_id);
+        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_kategori_id,$tipe);
         foreach ($dataLegit as $key) {
-            if($key->check_result == 'preview'){
-                $key->check_result = 'Checking';
-            }elseif($key->check_result == 'real'){
+            // if($key->check_result == 'preview'){
+            //     $key->check_result = 'Checking';
+            // }else
+            if($key->check_result == 'real'){
                 $key->check_result = 'Original';
             }
             if($key->check_result == null){
-                $key->check_result = 'Process';
+                $key->check_result = 'Waiting';
             }
         }
         $this->response([
@@ -221,13 +227,14 @@ class Legits extends RestController {
         $dataLegit = $this->legit->getValidateDetail($case_code);
         if($dataLegit){
             foreach ($dataLegit as $key) {
-                if($key->check_result == 'preview'){
-                    $key->check_result = 'Checking';
-                }elseif($key->check_result == 'real'){
+                // if($key->check_result == 'preview'){
+                //     $key->check_result = 'Checking';
+                // }else
+                if($key->check_result == 'real'){
                     $key->check_result = 'Original';
                 }
                 if($key->check_result == null){
-                    $key->check_result = 'Process';
+                    $key->check_result = 'Waiting';
                 }
                 $key->image_list = $this->image->get_by(array('legit_id'=>$key->id),'','','',array('file_path'));
                 if(!empty($key->validator_user_id)){
@@ -259,7 +266,13 @@ class Legits extends RestController {
             'validator_user_id' => $this->input->post('validator_user_id'),
             'final_time_check' =>date('Y-m-d H:i:s')
         );
-        $register = $this->validator->insert($data);
+        $check_hasil_sebelumnya = $this->validator->get_by(array('legit_id' => $this->input->post('legit_id')),'','','',);
+        if(count($check_hasil_sebelumnya) > 0){
+            $register = $this->validator->update($data,array('legit_id' => $this->input->post('legit_id')));
+        }else{
+            $register = $this->validator->insert($data);
+        }
+        
         if($register){
             $this->response([
                 'status' => true,
@@ -284,6 +297,16 @@ class Legits extends RestController {
         $this->response([
             'status' => true,
             'data'  => $data
+        ],200);
+    }
+
+    public function totallegit_get(){
+        $this->authorization_token->authtoken();
+        // SELECT COUNT(id) as total FROM `tbl_validator` WHERE check_result != 'processing';
+        $total = $this->validator->count("check_result != 'processing'");
+        $this->response([
+            'status' => true,
+            'total'  => $total
         ],200);
     }
 

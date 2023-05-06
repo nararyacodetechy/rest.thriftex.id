@@ -46,7 +46,8 @@ class Users extends RestController {
             $data['foto'] = '';
             if($this->input->post('role') != null){
                 $data['role'] = $this->input->post('role');
-                $data['validator_brand_id'] = $this->input->post('validator_brand_id');
+                // $data['validator_brand_id'] = $this->input->post('validator_brand_id');
+                $data['validator_kategori_id'] = $this->input->post('validator_kategori_id');
             }
             $data['user_code'] = intCodeRandom(4);
 
@@ -80,7 +81,7 @@ class Users extends RestController {
         $email = $this->input->post('email');
         $password = $this->input->post('password');
         if(isset($email)){
-            $cek_email = $this->user->get_by(array('email' => $email),1,NULL,TRUE,array('id','nama','username','password','email','role','register_tipe','validator_brand_id','user_code'));
+            $cek_email = $this->user->get_by(array('email' => $email),1,NULL,TRUE,array('id','nama','username','password','email','role','register_tipe','validator_brand_id','validator_kategori_id','user_code'));
             if($cek_email != null){
                 $this->user_detail = $cek_email;
             }else{
@@ -106,6 +107,7 @@ class Users extends RestController {
                 'email'  => $this->user_detail->email,
                 'role'  => $this->user_detail->role,
                 'validator_brand_id'    => $this->user_detail->validator_brand_id,
+                'validator_kategori_id'    => $this->user_detail->validator_kategori_id,
                 'user_code' => $this->user_detail->user_code
             );
             $token = $this->authorization_token->generateToken($token_data);
