@@ -310,6 +310,36 @@ class Legits extends RestController {
         ],200);
     }
 
+    public function legitpublish_get(){
+        $this->authorization_token->authtoken();
+        $headers = $this->input->request_headers();
+        $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+
+        $dataLegit = $this->legit->getLegitListPublish();
+        if($dataLegit){
+            foreach ($dataLegit as $key) {
+                // if($key->check_result == 'preview'){
+                //     $key->check_result = 'Checking';
+                // }else
+                if($key->check_result == 'real'){
+                    $key->check_result = 'Original';
+                }
+                if($key->check_result == null){
+                    $key->check_result = 'Waiting';
+                }
+            }
+            $this->response([
+                'status' => true,
+                'data'  => $dataLegit
+            ],200);
+        }else{
+            $this->response([
+                'status' => false,
+                'message' => 'User Not Found!'
+            ],404);
+        }
+    }
+
     
 
 }
