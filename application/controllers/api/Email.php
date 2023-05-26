@@ -23,7 +23,7 @@ class Email extends RestController {
             'isi_pesan'  => $this->input->post('isi_pesan'),
         );
 		$html = $this->load->view('email/template_email.php',$data_pesan,true);
-        $kepada = 'gedesugandi@gmail.com,gdesugandi@gmail.com';
+        $kepada = 'gedesugandi@gmail.com,thriftexcs@gmail.com';
         $send = $this->smtp->SendEmail($kepada,$subjek,$html);
         $this->response($send);
 	}
