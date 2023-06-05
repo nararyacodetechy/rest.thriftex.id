@@ -3,7 +3,7 @@
 class SConfig 
 {
 
-    // online
+    // // online
     var $_site_url = 'https://rest.thriftex.id/api/';
     var $_app_mode = 'production';
     var $_host_name = 'localhost';
