@@ -23,7 +23,7 @@ class Users extends RestController {
             $email = $this->input->post('email');
             $password = $this->input->post('password');
             $this->form_validation->set_rules('nama', 'Nama', 'required');
-            $this->form_validation->set_rules('email', 'Email', 'required|is_unique[tbl_user.email]',array('is_unique' => 'Email sudah pernah terdaftar!'));
+            $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[tbl_user.email]',array('is_unique' => 'Email sudah pernah terdaftar!'));
             $this->form_validation->set_rules('password', 'Password', 'required');
             $this->form_validation->set_rules('passconf', 'Konfirmsi Password', 'required|matches[password]',
                                                         array('matches' => 'Password Konfirmasi harus sama!')
