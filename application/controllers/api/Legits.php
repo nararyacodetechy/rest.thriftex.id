@@ -20,6 +20,7 @@ class Legits extends RestController {
         $this->load->model('LegitDetail_model','legit_detail');
         $this->load->model('Payment_model','payment');
         $this->load->model('Validator_model','validator');
+        date_default_timezone_set('Asia/Makassar');
     }
     function caseCode($user_id,$brand_id){
         $data_user = $this->user->get_by(array('id' => $user_id),'','',true,array('nama','user_code'));
@@ -138,28 +139,29 @@ class Legits extends RestController {
 
         $user_id = $decodedToken['data']->user_id;
         $dataLegit = $this->legit->getLegitListUser($user_id);
-        if($dataLegit){
-            foreach ($dataLegit as $key) {
-                // if($key->check_result == 'preview'){
-                //     $key->check_result = 'Checking';
-                // }else
-                if($key->check_result == 'real'){
-                    $key->check_result = 'Original';
-                }
-                if($key->check_result == null){
-                    $key->check_result = 'Waiting';
-                }
+        // var_dump($dataLegit);
+        foreach ($dataLegit as $key) {
+            // if($key->check_result == 'preview'){
+            //     $key->check_result = 'Checking';
+            // }else
+            if($key->check_result == 'real'){
+                $key->check_result = 'Original';
             }
-            $this->response([
-                'status' => true,
-                'data'  => $dataLegit
-            ],200);
-        }else{
-            $this->response([
-                'status' => false,
-                'message' => 'User Not Found!'
-            ],404);
+            if($key->check_result == null){
+                $key->check_result = 'Waiting';
+            }
         }
+        $this->response([
+            'status' => true,
+            'data'  => $dataLegit
+        ],200);
+        // if($dataLegit){
+        // }else{
+        //     $this->response([
+        //         'status' => false,
+        //         'message' => 'User Not Found!'
+        //     ],404);
+        // }
     }
 
     public function datadetail_get(){
@@ -301,7 +303,8 @@ class Legits extends RestController {
     }
 
     public function totallegit_get(){
-        $this->authorization_token->authtoken();
+        // $this->authorization_token->authtoken();
+
         // SELECT COUNT(id) as total FROM `tbl_validator` WHERE check_result != 'processing';
         $total = $this->validator->count("check_result != 'processing'");
         $this->response([
@@ -311,9 +314,10 @@ class Legits extends RestController {
     }
 
     public function legitpublish_get(){
-        $this->authorization_token->authtoken();
-        $headers = $this->input->request_headers();
-        $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+        // $this->authorization_token->authtoken();
+
+        // $headers = $this->input->request_headers();
+        // $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
 
         $dataLegit = $this->legit->getLegitListPublish();
         if($dataLegit){
