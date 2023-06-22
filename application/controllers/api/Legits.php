@@ -344,6 +344,33 @@ class Legits extends RestController {
         }
     }
 
+    public function searchlegit_post(){
+        $this->authorization_token->authtoken();
+        $headers = $this->input->request_headers();
+        // $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+        $query = $this->input->post('query');
+        $dataLegit = $this->legit->getLegitListPublish($query);
+        if($dataLegit){
+            foreach ($dataLegit as $key) {
+                if($key->check_result == 'real'){
+                    $key->check_result = 'Original';
+                }
+                if($key->check_result == null){
+                    $key->check_result = 'Waiting';
+                }
+            }
+            $this->response([
+                'status' => true,
+                'data'  => $dataLegit
+            ],200);
+        }else{
+            $this->response([
+                'status' => false,
+                'message' => 'Case Code Not Found!'
+            ],404);
+        }
+    }
+
     
 
 }
