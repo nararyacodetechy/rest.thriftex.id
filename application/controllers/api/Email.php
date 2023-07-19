@@ -28,4 +28,19 @@ class Email extends RestController {
         $this->response($send);
 	}
 
+    public function sendemailSertif_post(){
+        $this->load->library('Authorization_Token');
+        $this->authorization_token->authtoken();
+		$subjek = $this->input->post('subjek');
+		$data_pesan = array(
+            'isi_pesan'  => $this->input->post('isi_pesan'),
+        );
+        $this->load->view('email/template_email_sertifikat_terima.php',$data_pesan,false);
+
+		// $html = $this->load->view('email/template_email.php',$data_pesan,true);
+        // $kepada = 'gedesugandi@gmail.com,thriftexcs@gmail.com';
+        // $send = $this->smtp->SendEmail($kepada,$subjek,$html);
+        // $this->response($send);
+	}
+
 }

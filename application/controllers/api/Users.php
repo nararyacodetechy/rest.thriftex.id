@@ -296,5 +296,28 @@ class Users extends RestController {
         }
     }
 
+    public function userlistselect_get(){
+        $this->authorization_token->authtoken();
+        $headers = $this->input->request_headers();
+        $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+        if($decodedToken['status'] == true && $decodedToken['data']->role == 'admin'){
+            $param = $this->get('select2');
+            $query = $param['q'];
+            $keySearch = 'email';
+
+            $role = $this->get('role');
+            $data = $this->user->list('','',$query, $keySearch,$role);
+            foreach ($data as $key) {
+                // $key->data_nama = '<label for="" class="font-16">'.$key->nama.'</label><p class="font-400 font-12 p-0 m-0">'.$key->email.'</p>';
+            }
+            $result['status'] = 200;
+            $result['data'] = $data;
+            $this->response($result);
+        }else{
+            $this->response([
+                'status'    => false,
+            ]);
+        }
+    }
 
 }
