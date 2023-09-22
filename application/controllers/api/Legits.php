@@ -20,6 +20,7 @@ class Legits extends RestController {
         $this->load->model('LegitDetail_model','legit_detail');
         $this->load->model('Payment_model','payment');
         $this->load->model('Validator_model','validator');
+        $this->load->library('Smtp');
         date_default_timezone_set('Asia/Makassar');
     }
     function caseCode($user_id,$brand_id){
@@ -110,6 +111,7 @@ class Legits extends RestController {
                 ],400);
             }else{
                 $this->db->trans_commit();
+                $this->admin_email_notif($case_id);
                 $this->response([
                     'status'    => true,
                     'case_id'   => $case_id,
@@ -130,6 +132,18 @@ class Legits extends RestController {
                 'message'   => $th->getMessage(),
             ],400);
         }
+	}
+    public function admin_email_notif($case_id){
+        $this->authorization_token->authtoken();
+		$subjek = 'Legit Check Baru Masuk';
+		$data_pesan = array(
+            'case_id'  => $case_id,
+        );
+        // $this->load->view('email/admin_email_new_legit.php',$data_pesan,false);
+
+		$html = $this->load->view('email/admin_email_new_legit.php',$data_pesan,true);
+        $kepada = 'gedesugandi@gmail.com';
+        $send = $this->smtp->SendEmail($kepada,$subjek,$html);
 	}
 
     public function data_get(){
@@ -260,10 +274,14 @@ class Legits extends RestController {
     public function validation_post(){
         $this->authorization_token->authtoken();
         $check_result = $this->input->post('check_result');
+        $processing_mode = $this->input->post('processing_status');
         $check_note = $this->input->post('check_note');
+        $get_legit_code = $this->legit->get_by(array('id' => $this->input->post('legit_id')),null,null,true,array('case_code','user_id'));
+        $get_email_user = $this->user->get_by(array('id' => $get_legit_code->user_id),null,null,true,array('email'));
         $data = array(
             'legit_id'  =>$this->input->post('legit_id'),
             'check_result'=> $check_result,
+            'processing_status' => $processing_mode,
             'check_note'  => $check_note,
             'validator_user_id' => $this->input->post('validator_user_id'),
             'final_time_check' =>date('Y-m-d H:i:s')
@@ -276,6 +294,7 @@ class Legits extends RestController {
         }
         
         if($register){
+            $this->user_notif_validation_process($get_legit_code->case_code,$get_email_user->email);
             $this->response([
                 'status' => true,
                 'message'   => 'Hasil validasi disimpan',
@@ -288,6 +307,20 @@ class Legits extends RestController {
             ],403);
         }
     }
+    public function user_notif_validation_process($case_id,$get_email_user){
+        $this->authorization_token->authtoken();
+		$subjek = 'Status Cek Legit Anda #'.$case_id.' - thriftex.id';
+        // $case_id = '2242-20GSX';
+        $data_legit_detail = $this->legit->legit_detail_by_code($case_id);
+		$data_pesan = array(
+            'case_id'  => $case_id,
+            'data_legit_detail' => $data_legit_detail
+        );
+        // $this->load->view('email/user_notif_validation.php',$data_pesan,false);
+		$html = $this->load->view('email/user_notif_validation.php',$data_pesan,true);
+        $kepada = $get_email_user;
+        $send = $this->smtp->SendEmail($kepada,$subjek,$html);
+	}
 
     public function summaryadmin_get(){
         $this->authorization_token->authtoken();
@@ -349,7 +382,9 @@ class Legits extends RestController {
         $headers = $this->input->request_headers();
         // $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
         $query = $this->input->post('query');
-        $dataLegit = $this->legit->getLegitListPublish($query);
+        $dataLegit = $this->legit->searchPublishLegit($query);
+        // var_dump($dataLegit);
+        // die;
         if($dataLegit){
             foreach ($dataLegit as $key) {
                 if($key->check_result == 'real'){
@@ -358,6 +393,20 @@ class Legits extends RestController {
                 if($key->check_result == null){
                     $key->check_result = 'Waiting';
                 }
+                $key->image_list = $this->image->get_by(array('legit_id'=>$key->id),null,null,false,array('file_path'));
+                
+                if($key->check_result == 'processing'){
+                    $badge_color = 'bg-blue-light';
+                }elseif($key->check_result == 'Checking'){
+                    $badge_color ='bg-yellow-dark';
+                }elseif($key->check_result == 'Original'){
+                    $badge_color ='bg-green-dark';
+                }elseif($key->check_result == 'fake'){
+                    $badge_color = 'bg-red-dark';
+                }else{
+                    $badge_color = 'bg-yellow-light';
+                }
+                $key->badge_color = $badge_color;
             }
             $this->response([
                 'status' => true,
@@ -366,8 +415,9 @@ class Legits extends RestController {
         }else{
             $this->response([
                 'status' => false,
-                'message' => 'Case Code Not Found!'
-            ],404);
+                'message' => 'Case Code Not Found!',
+                'data'  =>''
+            ],200);
         }
     }
 
