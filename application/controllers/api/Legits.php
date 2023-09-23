@@ -135,7 +135,7 @@ class Legits extends RestController {
 	}
     public function admin_email_notif($case_id){
         $this->authorization_token->authtoken();
-		$subjek = 'Legit Check Baru Masuk';
+		$subjek = 'Legit Check Baru Masuk #'.$case_id.'';
 		$data_pesan = array(
             'case_id'  => $case_id,
         );
