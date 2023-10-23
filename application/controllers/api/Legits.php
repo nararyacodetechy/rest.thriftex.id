@@ -20,6 +20,7 @@ class Legits extends RestController {
         $this->load->model('LegitDetail_model','legit_detail');
         $this->load->model('Payment_model','payment');
         $this->load->model('Validator_model','validator');
+        $this->load->model('Brand_model','brand');
         $this->load->library('Smtp');
         date_default_timezone_set('Asia/Makassar');
     }
@@ -43,31 +44,37 @@ class Legits extends RestController {
         // var_dump($datauser);
         try {
             $kategori_id = $this->input->post('kategori');
-            $brand_id = $this->input->post('brand');
+            $brand = $this->input->post('brand');
             $nama_item = $this->input->post('nama_item');
+            $nama_toko = $this->input->post('nama_toko');
+            $kondisi_barang = $this->input->post('kondisi_barang');
             $catatan = $this->input->post('catatan');
             $data_foto = $this->input->post('data_foto');
             $user_id = $this->input->post('user_id');
             $this->form_validation->set_rules('kategori', 'Kategori', 'required');
             $this->form_validation->set_rules('brand', 'Brand', 'required');
             $this->form_validation->set_rules('nama_item', 'Nama Item', 'required');
+            $this->form_validation->set_rules('nama_toko', 'Nama Toko', 'required');
+            $this->form_validation->set_rules('kondisi_barang', 'Kondisi Barang', 'required');
             $this->form_validation->set_message('required', '{field} tidak boleh kosong!');
             $this->form_validation->set_error_delimiters('', '');
             // if(!$this->form_validation->run()) throw new Exception(validation_errors());
             
-            $data = array(
-                'user_id'   => $user_id,
-                'kategori'      => $kategori_id,
-                'brand'  => $brand_id,
-                'nama_item'  => $nama_item,
-                'data_foto' => $data_foto,
-                'catatan'     => $catatan,
-            );
+            // $data = array(
+            //     'user_id'   => $user_id,
+            //     'kategori'      => $kategori_id,
+            //     'brand'  => $brand_id,
+            //     'nama_item'  => $nama_item,
+            //     'data_foto' => $data_foto,
+            //     'catatan'     => $catatan,
+            // );
             // $response = [
             //     'status'    => false,
             //     'message'   => ''
             // ];
-            $case_id = $this->caseCode($user_id,$brand_id);
+
+            $get_brand_id = $this->brand->get_by(array('brand_name' => $brand),null,null,true,array('id'));
+            $case_id = $this->caseCode($user_id,$brand);
             $this->db->trans_begin();
             $data_legit = array(
                 'case_code' => $case_id,
@@ -80,9 +87,11 @@ class Legits extends RestController {
             $data_legit_detail = array(
                 'legit_id'      => $legit_id,
                 'kategori_id'   => $kategori_id,
-                // 'brand_id'      => $brand_id,
-                'nama_brand'    => $brand_id,
+                'brand_id'      => $get_brand_id->id,
+                'nama_brand'    => $brand,
                 'nama_item'     => $nama_item,
+                'kondisi'       => $kondisi_barang,
+                'toko_pembelian' => $nama_toko,
                 'catatan'       => $catatan,
                 'created_at'    => date('Y-m-d H:i:s')
             );
@@ -218,7 +227,8 @@ class Legits extends RestController {
         $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
         $tipe = $this->get('tipe');
         // var_dump($decodedToken['data']->validator_kategori_id);
-        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_kategori_id,$tipe);
+        $get_brand_name = $this->brand->get_by(array('id' => $decodedToken['data']->validator_brand_id),null,null,true,array('id','brand_name'));
+        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_brand_id,$tipe,$get_brand_name->brand_name);
         foreach ($dataLegit as $key) {
             // if($key->check_result == 'preview'){
             //     $key->check_result = 'Checking';

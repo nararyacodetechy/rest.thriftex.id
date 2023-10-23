@@ -30,7 +30,7 @@ class User_model extends MY_Model
 	{
 		// echo $query;
 		$kolom = ['nama','', 'username', 'email','foto','user_code'];
-		$this->db->select('tbl_user.id,tbl_user.nama,tbl_user.username,tbl_user.email,tbl_user.foto,tbl_user.user_code');
+		$this->db->select('tbl_user.id,tbl_user.nama,tbl_user.username,tbl_user.email,tbl_user.foto,tbl_user.role,tbl_user.validator_brand_id,tbl_user.validator_kategori_id,tbl_user.user_code');
 		// tbl_produk_stok.id_barang,tbl_produk_stok.jumlah,tbl_produk_stok.harga_beli
 		$this->db->group_start();
 		$this->db->or_like($keysearch, $query, 'BOTH');
