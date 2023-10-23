@@ -5,7 +5,7 @@ class SConfig
 
     // // online
     var $_site_url = 'https://rest.thriftex.id/api/';
-    var $_app_mode = 'production';
+    var $_app_mode = 'development';
     var $_host_name = 'localhost';
     var $_database_name = 'thriftex_maindb';
 	var $_database_user = 'thriftex_maindb';
