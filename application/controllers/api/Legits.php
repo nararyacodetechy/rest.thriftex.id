@@ -227,8 +227,12 @@ class Legits extends RestController {
         $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
         $tipe = $this->get('tipe');
         // var_dump($decodedToken['data']->validator_kategori_id);
+        $nama_brand = '';
         $get_brand_name = $this->brand->get_by(array('id' => $decodedToken['data']->validator_brand_id),null,null,true,array('id','brand_name'));
-        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_brand_id,$tipe,$get_brand_name->brand_name);
+        if(!empty($get_brand_name)){
+            $nama_brand = $get_brand_name->brand_name;
+        }
+        $dataLegit = $this->legit->getLegitListByStatus($decodedToken['data']->validator_brand_id,$tipe,$nama_brand);
         foreach ($dataLegit as $key) {
             // if($key->check_result == 'preview'){
             //     $key->check_result = 'Checking';

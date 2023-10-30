@@ -87,7 +87,7 @@ class Legit_model extends MY_Model
 
 	public function getValidateDetail($case_code){
 		// $this->db->select('tbl_legit_check.id,tbl_legit_check.case_code,tbl_legit_check.user_id,tbl_legit_check.legit_status,tbl_legit_check.submit_time,tbl_legit_check_detail.nama_item,tbl_legit_check_detail.catatan,tbl_validator.check_result,tbl_validator.validator_user_id,tbl_kategori.kategori_name,tbl_brand.brand_name');
-		$this->db->select('tbl_legit_check.id,tbl_legit_check.case_code,tbl_legit_check.user_id,tbl_legit_check.legit_status,tbl_legit_check.submit_time,tbl_legit_check_detail.nama_item,tbl_legit_check_detail.nama_brand as brand_name,tbl_legit_check_detail.catatan,tbl_validator.check_result,tbl_validator.processing_status,tbl_validator.validator_user_id,tbl_kategori.kategori_name');
+		$this->db->select('tbl_legit_check.id,tbl_legit_check.case_code,tbl_legit_check.user_id,tbl_legit_check.legit_status,tbl_legit_check.submit_time,tbl_legit_check_detail.nama_item,tbl_legit_check_detail.nama_brand as brand_name,tbl_legit_check_detail.kondisi,tbl_legit_check_detail.toko_pembelian,tbl_legit_check_detail.catatan,tbl_validator.check_result,tbl_validator.processing_status,tbl_validator.validator_user_id,tbl_kategori.kategori_name');
 		$this->db->join('tbl_legit_check_detail','tbl_legit_check_detail.legit_id = tbl_legit_check.id','join');
 		$this->db->join('tbl_validator','tbl_validator.legit_id = tbl_legit_check.id','left');
 		$this->db->join('tbl_kategori','tbl_legit_check_detail.kategori_id = tbl_kategori.id');
