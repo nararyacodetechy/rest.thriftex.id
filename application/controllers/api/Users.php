@@ -200,7 +200,6 @@ class Users extends RestController {
                 'username' => $this->user_detail->username,
                 'email'  => $this->user_detail->email,
                 'role'  => $this->user_detail->role,
-                'role'  => $this->user_detail->role,
                 'no_hp'  => $this->user_detail->no_hp,
                 'jenis_kelamin'  => $this->user_detail->jenis_kelamin,
                 'validator_brand_id'    => $this->user_detail->validator_brand_id,
@@ -245,7 +244,7 @@ class Users extends RestController {
             $get_user = $this->user->get_by(array('id'=>$decodedToken['data']->user_id),null,null,true,array('id as user_id','nama','username','email','role','no_hp','jenis_kelamin','validator_brand_id','validator_kategori_id','user_code'));
             if($get_user){
                 $this->response([
-                    'status' => false,
+                    'status' => true,
                     'data' => $get_user
                 ],200);
                 // echo json_encode($get_user);
