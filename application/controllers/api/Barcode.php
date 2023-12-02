@@ -12,6 +12,10 @@ class Barcode extends RestController {
         parent::__construct();
         $this->load->library('Authorization_Token');
         $this->load->model('Barcode_model','barcode');
+        $this->load->model('Barcode_profile_model','barcode_profile');
+        $this->load->model('Barcode_img_model','barcode_img');
+        $this->load->model('Barcode_img_produk_model','barcode_img_produk');
+        $this->load->model('User_model','user');
     }
 
     public function pendingbarcode_get(){
@@ -102,5 +106,126 @@ class Barcode extends RestController {
             ],200);
         }
     }
+
+    public function listakunqr_get(){
+        $this->authorization_token->authtoken();
+        $headers = $this->input->request_headers();
+        $decodedToken = $this->authorization_token->validateToken($headers['Authorization']);
+        if($decodedToken['status'] == true && $decodedToken['data']->role == 'admin'){
+            // $param = $this->get();
+            $param = $this->get('datatable');
+            $query = $param['sSearch'];
+            $start = $param['iDisplayStart'];
+            $length = $param['iDisplayLength'];
+            $keySearch = 'nama_brand';
+
+            $result['sEcho'] = intval($param['sEcho']);
+            $result['iTotalRecords'] = $this->user->count(array('role' => 'toko'));
+            $result['iTotalDisplayRecords'] = $this->user->count_filter($query,'toko');
+            if ($length == -1) $length = $result['iTotalDisplayRecords'];
+            $data = $this->barcode->list_akun_qr($start, $length, $query, $keySearch);
+            foreach ($data as $key) {
+                $key->data_nama = '<label for="" class="font-16">'.$key->nama_brand.'</label><p class="font-400 font-12 p-0 m-0">'.$key->email.'</p>';
+                // $key->qrcode = $key->toko_code;
+            }
+            $result['aaData'] = $data;
+            $this->response($result);
+        }else{
+            $this->response([
+                'status'    => false,
+            ]);
+        }
+    }
+
+    public function slugg($string){
+        $string = utf8_encode($string);
+        $string = iconv('UTF-8', 'ASCII//TRANSLIT', $string);   
+        $string = preg_replace('/[^a-z0-9- ]/i', '', $string);
+        $string = str_replace(' ', '-', $string);
+        $string = trim($string, '-');
+        $string = strtolower($string);
+        if (empty($string)) {
+            return 'n-a';
+        }
+        return $string;
+    }
+    public function registerbrand_post()
+	{   
+        try {
+            
+            $nama_brand = $this->input->post('nama_brand');
+            $id_user = $this->input->post('id_user');
+
+            $update_user_role = array(
+                'role' => 'toko'
+            );
+            $update_user = $this->user->update($update_user_role,array('id' => $id_user));
+            $data_insert = array(
+                'id_user'       => $id_user,
+                // 'logo'          =>'',
+                'nama_brand'    => $nama_brand,
+                'url_toko'      => $this->slugg($nama_brand),
+                'deskripsi_toko' => ''
+            );
+            $register = $this->barcode_profile->insert($data_insert);
+            
+            if($register){
+                // $get_user_code = $this->toko->get_by(array('id' => $register),'','',true,array('nama_toko','alamat','toko_code'));
+                $this->response([
+                    'status' => true,
+                    'message'   => 'Register Berhasil',
+                    'data'  => []
+                    // 'data'  => [
+                    //     'nama_toko' => $get_user_code->nama_toko,
+                    //     'alamat'    => $get_user_code->alamat,
+                    //     'toko_code' => $get_user_code->toko_code,
+                    // ]
+                ],201);
+            }else{
+                $this->response([
+                    'status' => false,
+                    'message'   => 'Register Gagal',
+                    'data'  => []
+                ],400);
+            }
+
+        } catch (\Throwable $th) {
+            $this->response([
+                'status' => false,
+                'message'   => $th->getMessage(),
+            ],400);
+        }
+	}
+
+    public function cekurl_get(){
+        $cek = $this->input->get();
+        $cek_url = $this->barcode_profile->cek_url($cek['url']);
+        if(!empty($cek_url)){
+            $cek_kode = $this->barcode_img->cek_code($cek['code']);
+            if(!empty($cek_kode)){
+                $get_img = $this->barcode_img_produk->get_by(array('id_barcode' => $cek_kode->id));
+                $this->response([
+                    'status' => true,
+                    'message'   => 'Register Berhasil',
+                    'data'  => [
+                        'profile' => $cek_url,
+                        'barcode_info'    => $cek_kode,
+                        'barcode_foto'    => $get_img
+                    ]
+                ],201);
+            }else{
+                $this->response([
+                    'status' => false,
+                    'message'   => '404',
+                ],201);
+            }
+        }else{
+            $this->response([
+                'status' => false,
+                'message'   => '404',
+            ],404);
+        }
+    }
+
 
 }

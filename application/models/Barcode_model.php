@@ -45,5 +45,19 @@ class Barcode_model extends MY_Model
         $this->db->order_by($this->_table_name.'.'.$this->_primary_key, 'desc');
         return $this->db->get($this->_table_name,$length, $start)->result();
     }
+
+	function list_akun_qr($start, $length, $query, $keysearch)
+	{
+		// echo $query;
+		$this->db->select('tbl_user.id,tbl_user.nama,tbl_user.email,tbl_user.foto,tbl_user.user_code,tbl_barcode_profile.id_user,tbl_barcode_profile.nama_brand,tbl_barcode_profile.url_toko');
+        $this->db->join('tbl_barcode_profile', 'tbl_barcode_profile.id_user = tbl_user.id','join');
+		$this->db->group_start();
+		$this->db->or_like($keysearch, $query, 'BOTH');
+		$this->db->group_end();
+
+		$this->db->where('tbl_user.role','toko');
+		$this->db->order_by('tbl_user.id', 'desc');
+		return $this->db->get('tbl_user', $length, $start)->result();
+	}
     
 }
