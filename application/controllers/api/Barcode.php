@@ -15,6 +15,7 @@ class Barcode extends RestController {
         $this->load->model('Barcode_profile_model','barcode_profile');
         $this->load->model('Barcode_img_model','barcode_img');
         $this->load->model('Barcode_img_produk_model','barcode_img_produk');
+        $this->load->model('Barcode_img_lookbook_model', 'barcode_img_lookbook');
         $this->load->model('User_model','user');
     }
 
@@ -204,13 +205,15 @@ class Barcode extends RestController {
             $cek_kode = $this->barcode_img->cek_code($cek['code']);
             if(!empty($cek_kode)){
                 $get_img = $this->barcode_img_produk->get_by(array('id_barcode' => $cek_kode->id));
+                $get_img_lookbook = $this->barcode_img_lookbook->get_by(array('id_barcode' => $cek_kode->id));
                 $this->response([
                     'status' => true,
                     'message'   => 'Register Berhasil',
                     'data'  => [
                         'profile' => $cek_url,
                         'barcode_info'    => $cek_kode,
-                        'barcode_foto'    => $get_img
+                        'barcode_foto'    => $get_img,
+                        'barcode_foto_look_book'    => $get_img_lookbook
                     ]
                 ],201);
             }else{
