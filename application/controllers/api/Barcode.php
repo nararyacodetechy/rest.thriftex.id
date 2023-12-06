@@ -204,8 +204,8 @@ class Barcode extends RestController {
         if(!empty($cek_url)){
             $cek_kode = $this->barcode_img->cek_code($cek['code']);
             if(!empty($cek_kode)){
-                $get_img = $this->barcode_img_produk->get_by(array('id_barcode' => $cek_kode->id));
-                $get_img_lookbook = $this->barcode_img_lookbook->get_by(array('id_barcode' => $cek_kode->id));
+                $get_img = $this->barcode_img_produk->get_media($cek_kode->id);
+                $get_img_lookbook = $this->barcode_img_lookbook->get_media($cek_kode->id);
                 $this->response([
                     'status' => true,
                     'message'   => 'Register Berhasil',
