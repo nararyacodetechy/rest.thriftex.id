@@ -19,7 +19,7 @@ class SConfig
     var $_site_url = 'http://localhost/verifex/rest.thriftex.id/';
     var $_app_mode = 'development';
     var $_host_name = 'localhost';
-    var $_database_name = 'thriftex_maindb';
+    var $_database_name = 'thriftex';
     var $_database_user = 'root';
     var $_database_password = '';
 
